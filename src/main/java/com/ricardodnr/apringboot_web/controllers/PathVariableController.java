@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,6 +33,18 @@ public class PathVariableController {
     @Value("#{ '${config.listOfValues}'.split(',') }")
     private List<String> valueList;
 
+    @Value("#{${config.valuesMap}}")
+    private Map<String, Object> valuesMap;
+
+    @Value("#{${config.valuesMap}.product}")
+    private String productName;
+
+    @Value("#{${config.valuesMap}.price}")
+    private String productPrice;
+
+    @Autowired
+    private Environment environment;
+
     @GetMapping("baz/{message}")
     public ParamDto baz(
         @PathVariable String message
@@ -45,7 +59,6 @@ public class PathVariableController {
         @PathVariable String message,
         @PathVariable Long code
     ) {
-        // ParamDto paramDto = new ParamDto();
         Map<String, Object> json = new HashMap<>();
         json.put("message", message);
         json.put("code", code);
@@ -67,9 +80,14 @@ public class PathVariableController {
         Map<String, Object> json = new HashMap<>();
         json.put("username", username);
         json.put("message", message);
+        json.put("message2", environment.getProperty("config.message"));
+        json.put("code2", environment.getProperty("config.code", Long.class));
         json.put("lista", lista);
         json.put("code", code);
         json.put("valueList", valueList);
+        json.put("valuesMap", valuesMap);
+        json.put("product", productName);
+        json.put("price", productPrice);
         return json;
     }
 }
